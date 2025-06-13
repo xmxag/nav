@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="Политика обработки персональных данных\n\nВаши персональные данные (фамилия, имя, отчество, дата рождения, место учёбы, телефон, email, паспортные данные, ссылка на соцсеть) обрабатываются в целях управления отрядами и планирования мероприятий. Данные хранятся в защищённой базе и доступны только владельцу профиля, командирам соответствующих отрядов и администраторам системы. Вы даёте согласие на обработку данных, заполняя форму регистрации. Для отзыва согласия обратитесь к администратору системы." />
+
+</ScrollView>

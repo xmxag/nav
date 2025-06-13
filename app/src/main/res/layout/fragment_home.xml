@@ -10,7 +10,8 @@
         android:id="@+id/button3"
         android:layout_width="346dp"
         android:layout_height="60dp"
-        android:text="вступить в отряд"
+        android:backgroundTint="#FF9800"
+        android:text="Вступить в отряд"
         app:layout_constraintBottom_toTopOf="@+id/recyclerView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.476"
@@ -23,22 +24,11 @@
         android:layout_width="348dp"
         android:layout_height="266dp"
         android:layout_marginBottom="100dp"
-        android:background="#DB8F8F"
+        android:background="#E4DADA"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/button4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="выйти"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.049"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -73,13 +63,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="36dp"
-                    android:text="загрузить фото" />
+                    android:backgroundTint="#FF9800"
+                    android:text="Загрузить фото" />
 
                 <Button
                     android:id="@+id/button5"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="редактировать статус" />
+                    android:backgroundTint="#FF9800"
+                    android:text="Редактировать статус" />
 
             </LinearLayout>
 
@@ -90,7 +82,7 @@
             android:layout_width="321dp"
             android:layout_height="24dp"
             android:layout_marginBottom="16dp"
-            android:text="боец отряда " />
+            android:text="Боец отряда" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

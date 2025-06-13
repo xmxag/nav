@@ -1,8 +1,7 @@
 package com.example.nav.ui.home;
 
-import android.Manifest;
+import android.app.DatePickerDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -12,44 +11,55 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-
-import com.example.nav.LoginActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import com.example.nav.R;
+import com.example.nav.Squad;
+import com.example.nav.SquadAdapter;
+import com.example.nav.databinding.DialogEditProfileBinding;
 import com.example.nav.databinding.FragmentHomeBinding;
-
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
 
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
-    private HomeViewModel homeViewModel;
     private SharedPreferences sharedPreferences;
-    private ActivityResultLauncher<String> requestPermissionLauncher;
-    private ActivityResultLauncher<String> pickPhotoLauncher;
     private String loggedInUser;
+    private List<Squad> userSquads;
+    private SquadAdapter adapter;
+    private List<Squad> availableSquads;
+    private androidx.activity.result.ActivityResultLauncher<String> requestPermissionLauncher;
+    private androidx.activity.result.ActivityResultLauncher<String> pickPhotoLauncher;
+    private Gson gson;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Инициализация SharedPreferences
         sharedPreferences = requireActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
-        // Получаем логин текущего пользователя
         loggedInUser = sharedPreferences.getString("logged_in_user", "");
+        gson = new Gson();
         Log.d("HomeFragment", "Logged in user: " + loggedInUser);
 
-        // Инициализация лаунчера для запроса разрешений
         requestPermissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(),
                 isGranted -> {
@@ -57,51 +67,51 @@ public class HomeFragment extends Fragment {
                         pickPhotoLauncher.launch("image/*");
                     } else {
                         Toast.makeText(requireContext(), "Разрешение на доступ к медиа отклонено", Toast.LENGTH_SHORT).show();
-                        binding.imageView.setImageURI(null);
+                        binding.imageView.setImageResource(R.drawable.ic_default_profile);
                     }
                 });
 
-        // Инициализация лаунчера для выбора фото
         pickPhotoLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 uri -> {
                     if (uri != null) {
                         try {
-                            // Копируем изображение во внутреннее хранилище с уникальным именем для пользователя
                             String filePath = saveImageToInternalStorage(uri, loggedInUser);
                             binding.imageView.setImageURI(Uri.fromFile(new File(filePath)));
-                            // Сохраняем путь к файлу в SharedPreferences для текущего пользователя
                             sharedPreferences.edit().putString("photo_path_" + loggedInUser, filePath).apply();
                             Log.d("HomeFragment", "Saved photo path for " + loggedInUser + ": " + filePath);
                         } catch (Exception e) {
                             Toast.makeText(requireContext(), "Ошибка при загрузке фото", Toast.LENGTH_SHORT).show();
-                            e.printStackTrace();
+                            Log.e("HomeFragment", "Error saving photo", e);
                         }
                     }
                 });
     }
 
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
-
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
 
-        // Загружаем сохранённый текст профиля для текущего пользователя
-        String defaultProfileText = getDefaultProfileText(loggedInUser);
-        String savedProfileText = sharedPreferences.getString("profile_text_" + loggedInUser, defaultProfileText);
-        homeViewModel.setText(savedProfileText);
+        // Load available squads
+        String squadsJson = sharedPreferences.getString("available_squads", "");
+        Type squadListType = new TypeToken<List<Squad>>(){}.getType();
+        availableSquads = squadsJson.isEmpty() ? new ArrayList<>() : gson.fromJson(squadsJson, squadListType);
+
+        // Load user squads
+        String userSquadsJson = sharedPreferences.getString("user_" + loggedInUser + "_squads", "");
+        userSquads = userSquadsJson.isEmpty() ? new ArrayList<>() : gson.fromJson(userSquadsJson, squadListType);
+
+        // Setup RecyclerView
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        adapter = new SquadAdapter(requireContext(), userSquads, this::removeSquad);
+        binding.recyclerView.setAdapter(adapter);
+
+        // Load saved profile text
+        String savedProfileText = sharedPreferences.getString("profile_text_" + loggedInUser, getDefaultProfileText(loggedInUser));
+        binding.textView2.setText(savedProfileText);
         Log.d("HomeFragment", "Loaded profile text for " + loggedInUser + ": " + savedProfileText);
 
-        // Наблюдаем за изменениями текста профиля и сохраняем в SharedPreferences
-        homeViewModel.getText().observe(getViewLifecycleOwner(), text -> {
-            binding.textView2.setText(text);
-            sharedPreferences.edit().putString("profile_text_" + loggedInUser, text != null ? text : defaultProfileText).apply();
-            Log.d("HomeFragment", "Saved profile text for " + loggedInUser + ": " + text);
-        });
-
-        // Загружаем сохранённое изображение для текущего пользователя
+        // Load saved photo
         String savedPhotoPath = sharedPreferences.getString("photo_path_" + loggedInUser, null);
         if (savedPhotoPath != null) {
             File imageFile = new File(savedPhotoPath);
@@ -109,49 +119,46 @@ public class HomeFragment extends Fragment {
                 binding.imageView.setImageURI(Uri.fromFile(imageFile));
                 Log.d("HomeFragment", "Loaded photo for " + loggedInUser + ": " + savedPhotoPath);
             } else {
-                binding.imageView.setImageURI(null);
+                binding.imageView.setImageResource(R.drawable.ic_default_profile);
                 Log.d("HomeFragment", "Photo file not found for " + loggedInUser);
             }
+        } else {
+            binding.imageView.setImageResource(R.drawable.ic_default_profile);
+            Log.d("HomeFragment", "No photo path saved for " + loggedInUser);
         }
 
-        // Обработчик кнопки загрузки фото
+        // Setup button listeners
+        binding.button3.setOnClickListener(v -> showSquadSelectionDialog());
         binding.button2.setOnClickListener(v -> {
             String permission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ?
-                    Manifest.permission.READ_MEDIA_IMAGES :
-                    Manifest.permission.READ_EXTERNAL_STORAGE;
-
-            if (ContextCompat.checkSelfPermission(requireContext(), permission)
-                    == PackageManager.PERMISSION_GRANTED) {
+                    android.Manifest.permission.READ_MEDIA_IMAGES :
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE;
+            if (ContextCompat.checkSelfPermission(requireContext(), permission) == PackageManager.PERMISSION_GRANTED) {
                 pickPhotoLauncher.launch("image/*");
             } else {
                 requestPermissionLauncher.launch(permission);
             }
         });
+        binding.button5.setOnClickListener(v -> showEditStatusDialog());
+        binding.imageView.setOnClickListener(v -> showProfileDialog());
 
-        // Обработчик кнопки редактирования профиля
-        binding.button5.setOnClickListener(v -> showEditProfileDialog());
-
-        // Обработчик кнопки выхода
-        binding.button4.setOnClickListener(v -> showLogoutConfirmationDialog());
-
-        return root;
+        return binding.getRoot();
     }
 
     private String getDefaultProfileText(String login) {
         switch (login) {
             case "fighter1":
-                return "Fighter Profile";
+                return "Боец отряда";
             case "commander1":
-                return "Commander Profile";
+                return "Командир отряда";
             case "admin1":
-                return "Admin Profile";
+                return "Администратор";
             default:
-                return "Profile Text";
+                return "Боец отряда";
         }
     }
 
     private String saveImageToInternalStorage(Uri uri, String login) throws Exception {
-        // Используем уникальное имя файла для каждого пользователя
         File file = new File(requireContext().getFilesDir(), "profile_photo_" + login + ".jpg");
         try (InputStream inputStream = requireContext().getContentResolver().openInputStream(uri);
              FileOutputStream outputStream = new FileOutputStream(file)) {
@@ -164,43 +171,185 @@ public class HomeFragment extends Fragment {
         return file.getAbsolutePath();
     }
 
-    private void showEditProfileDialog() {
+    private void showEditStatusDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Редактировать профиль");
+        builder.setTitle("Редактировать статус");
 
         final EditText input = new EditText(requireContext());
-        String currentText = homeViewModel.getText().getValue();
-        input.setText(currentText != null ? currentText : "");
+        String currentText = binding.textView2.getText().toString();
+        input.setText(currentText);
         builder.setView(input);
 
         builder.setPositiveButton("Сохранить", (dialog, which) -> {
             String newText = input.getText().toString();
-            homeViewModel.setText(newText);
-            // Сохранение в SharedPreferences выполняется в наблюдателе LiveData
+            binding.textView2.setText(newText);
+            sharedPreferences.edit().putString("profile_text_" + loggedInUser, newText).apply();
+            Log.d("HomeFragment", "Saved profile text for " + loggedInUser + ": " + newText);
         });
 
         builder.setNegativeButton("Отмена", (dialog, which) -> dialog.cancel());
-
         builder.show();
     }
 
-    private void showLogoutConfirmationDialog() {
+    private void showProfileDialog() {
+        DialogEditProfileBinding dialogBinding = DialogEditProfileBinding.inflate(LayoutInflater.from(requireContext()));
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+
+        // Load user data
+        dialogBinding.editTextLastName.setText(sharedPreferences.getString("user_" + loggedInUser + "_last_name", ""));
+        dialogBinding.editTextFirstName.setText(sharedPreferences.getString("user_" + loggedInUser + "_first_name", ""));
+        dialogBinding.editTextPatronymic.setText(sharedPreferences.getString("user_" + loggedInUser + "_patronymic", ""));
+        dialogBinding.textViewDateOfBirth.setText(sharedPreferences.getString("user_" + loggedInUser + "_date_of_birth", ""));
+        dialogBinding.editTextPhone.setText(sharedPreferences.getString("user_" + loggedInUser + "_phone", ""));
+        dialogBinding.editTextEmail.setText(sharedPreferences.getString("user_" + loggedInUser + "_email", ""));
+        dialogBinding.editTextSocialLink.setText(sharedPreferences.getString("user_" + loggedInUser + "_social_link", ""));
+        dialogBinding.editTextPassportSeries.setText(sharedPreferences.getString("user_" + loggedInUser + "_passport_series", ""));
+        dialogBinding.editTextPassportNumber.setText(sharedPreferences.getString("user_" + loggedInUser + "_passport_number", ""));
+        dialogBinding.editTextPassportIssuedBy.setText(sharedPreferences.getString("user_" + loggedInUser + "_passport_issued_by", ""));
+        dialogBinding.editTextPassportIssuedDate.setText(sharedPreferences.getString("user_" + loggedInUser + "_passport_issued_date", ""));
+
+        // Setup study place spinner
+        List<String> studyPlaces = new ArrayList<>(Arrays.asList(
+                "Хакасский государственный университет",
+                "Абаканский колледж экономики и права",
+                "Хакасский политехнический колледж",
+                "Абаканский медицинский колледж",
+                "Другое"
+        ));
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, studyPlaces);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        dialogBinding.spinnerStudyPlace.setAdapter(adapter);
+        String currentStudyPlace = sharedPreferences.getString("user_" + loggedInUser + "_study_place", "");
+        int position = studyPlaces.indexOf(currentStudyPlace);
+        if (position == -1) {
+            dialogBinding.spinnerStudyPlace.setSelection(studyPlaces.indexOf("Другое"));
+            dialogBinding.editTextCustomStudyPlace.setText(currentStudyPlace);
+            dialogBinding.editTextCustomStudyPlace.setVisibility(View.VISIBLE);
+        } else {
+            dialogBinding.spinnerStudyPlace.setSelection(position);
+        }
+
+        dialogBinding.spinnerStudyPlace.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                dialogBinding.editTextCustomStudyPlace.setVisibility(
+                        parent.getItemAtPosition(pos).equals("Другое") ? View.VISIBLE : View.GONE);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        // Setup date pickers
+        dialogBinding.textViewDateOfBirth.setOnClickListener(v -> {
+            new DatePickerDialog(requireContext(), (view, year, month, dayOfMonth) -> {
+                calendar.set(year, month, dayOfMonth);
+                dialogBinding.textViewDateOfBirth.setText(dateFormat.format(calendar.getTime()));
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
+        });
+
+        dialogBinding.editTextPassportIssuedDate.setOnClickListener(v -> {
+            new DatePickerDialog(requireContext(), (view, year, month, dayOfMonth) -> {
+                calendar.set(year, month, dayOfMonth);
+                dialogBinding.editTextPassportIssuedDate.setText(dateFormat.format(calendar.getTime()));
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
+        });
+
+        // Show dialog
         new AlertDialog.Builder(requireContext())
-                .setTitle("Выход")
-                .setMessage("Вы уверены, что хотите выйти?")
-                .setPositiveButton("Да", (dialog, which) -> {
-                    // Очищаем данные сессии
+                .setTitle("Мой профиль")
+                .setView(dialogBinding.getRoot())
+                .setPositiveButton("Сохранить", (dialog, which) -> {
+                    // Save updated profile
+                    String lastName = dialogBinding.editTextLastName.getText().toString().trim();
+                    String firstName = dialogBinding.editTextFirstName.getText().toString().trim();
+                    String patronymic = dialogBinding.editTextPatronymic.getText().toString().trim();
+                    String dateOfBirth = dialogBinding.textViewDateOfBirth.getText().toString().trim();
+                    String studyPlace = dialogBinding.spinnerStudyPlace.getSelectedItem().toString();
+                    String customStudyPlace = dialogBinding.editTextCustomStudyPlace.getText().toString().trim();
+                    String phone = dialogBinding.editTextPhone.getText().toString().trim();
+                    String email = dialogBinding.editTextEmail.getText().toString().trim();
+                    String socialLink = dialogBinding.editTextSocialLink.getText().toString().trim();
+                    String passportSeries = dialogBinding.editTextPassportSeries.getText().toString().trim();
+                    String passportNumber = dialogBinding.editTextPassportNumber.getText().toString().trim();
+                    String passportIssuedBy = dialogBinding.editTextPassportIssuedBy.getText().toString().trim();
+                    String passportIssuedDate = dialogBinding.editTextPassportIssuedDate.getText().toString().trim();
+
+                    if (lastName.isEmpty() || firstName.isEmpty() || patronymic.isEmpty() || dateOfBirth.isEmpty() ||
+                            phone.isEmpty() || (studyPlace.equals("Другое") && customStudyPlace.isEmpty())) {
+                        Toast.makeText(requireContext(), "Заполните все обязательные поля", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    String finalStudyPlace = studyPlace.equals("Другое") ? customStudyPlace : studyPlace;
                     sharedPreferences.edit()
-                            .remove("logged_in_user")
-                            .remove("user_role")
+                            .putString("user_" + loggedInUser + "_last_name", lastName)
+                            .putString("user_" + loggedInUser + "_first_name", firstName)
+                            .putString("user_" + loggedInUser + "_patronymic", patronymic)
+                            .putString("user_" + loggedInUser + "_date_of_birth", dateOfBirth)
+                            .putString("user_" + loggedInUser + "_study_place", finalStudyPlace)
+                            .putString("user_" + loggedInUser + "_phone", phone)
+                            .putString("user_" + loggedInUser + "_email", email)
+                            .putString("user_" + loggedInUser + "_social_link", socialLink)
+                            .putString("user_" + loggedInUser + "_passport_series", passportSeries)
+                            .putString("user_" + loggedInUser + "_passport_number", passportNumber)
+                            .putString("user_" + loggedInUser + "_passport_issued_by", passportIssuedBy)
+                            .putString("user_" + loggedInUser + "_passport_issued_date", passportIssuedDate)
                             .apply();
-                    Log.d("HomeFragment", "Logged out user: " + loggedInUser);
-                    // Переходим на LoginActivity
-                    startActivity(new Intent(requireActivity(), LoginActivity.class));
-                    requireActivity().finish();
+
+                    Toast.makeText(requireContext(), "Профиль обновлён", Toast.LENGTH_SHORT).show();
                 })
-                .setNegativeButton("Нет", (dialog, which) -> dialog.dismiss())
+                .setNegativeButton("Отмена", null)
                 .show();
+    }
+
+    private void showSquadSelectionDialog() {
+        if (availableSquads.isEmpty()) {
+            Toast.makeText(requireContext(), "Нет доступных отрядов", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String[] squadNames = availableSquads.stream().map(Squad::getName).toArray(String[]::new);
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Выберите отряд")
+                .setItems(squadNames, (dialog, which) -> {
+                    Squad selectedSquad = availableSquads.get(which);
+                    if (!userSquads.contains(selectedSquad)) {
+                        userSquads.add(selectedSquad);
+                        saveSquads();
+                        adapter.notifyDataSetChanged();
+                        updateSquadText();
+                        Toast.makeText(requireContext(), "Вы вступили в отряд: " + selectedSquad.getName(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(requireContext(), "Вы уже в этом отряде", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Отмена", null)
+                .show();
+    }
+
+    private void removeSquad(Squad squad) {
+        userSquads.remove(squad);
+        saveSquads();
+        adapter.notifyDataSetChanged();
+        updateSquadText();
+        Toast.makeText(requireContext(), "Вы вышли из отряда: " + squad.getName(), Toast.LENGTH_SHORT).show();
+    }
+
+    private void saveSquads() {
+        String squadsJson = gson.toJson(userSquads);
+        sharedPreferences.edit().putString("user_" + loggedInUser + "_squads", squadsJson).apply();
+    }
+
+    private void updateSquadText() {
+        if (userSquads.isEmpty()) {
+            String profileText = sharedPreferences.getString("profile_text_" + loggedInUser, getDefaultProfileText(loggedInUser));
+            binding.textView2.setText(profileText);
+        } else {
+            String squadNames = userSquads.stream().map(Squad::getName).reduce((a, b) -> a + ", " + b).orElse("");
+            binding.textView2.setText("Боец отрядов: " + squadNames);
+        }
     }
 
     @Override

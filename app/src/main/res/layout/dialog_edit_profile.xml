@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+        <EditText
+            android:id="@+id/edit_text_last_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Фамилия" />
+        <EditText
+            android:id="@+id/edit_text_first_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Имя" />
+        <EditText
+            android:id="@+id/edit_text_patronymic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Отчество" />
+        <TextView
+            android:id="@+id/text_view_date_of_birth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Дата рождения"
+            android:padding="12dp" />
+        <Spinner
+            android:id="@+id/spinner_study_place"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <EditText
+            android:id="@+id/edit_text_custom_study_place"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Укажите место учёбы"
+            android:visibility="gone" />
+        <EditText
+            android:id="@+id/edit_text_phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Телефон"
+            android:inputType="phone" />
+        <EditText
+            android:id="@+id/edit_text_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email"
+            android:inputType="textEmailAddress" />
+        <EditText
+            android:id="@+id/edit_text_social_link"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Ссылка на соцсеть"
+            android:inputType="textUri" />
+        <EditText
+            android:id="@+id/edit_text_passport_series"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Серия паспорта"
+            android:inputType="text" />
+        <EditText
+            android:id="@+id/edit_text_passport_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Номер паспорта"
+            android:inputType="number" />
+        <EditText
+            android:id="@+id/edit_text_passport_issued_by"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Кем выдан паспорт"
+            android:inputType="text" />
+        <TextView
+            android:id="@+id/edit_text_passport_issued_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Дата выдачи"
+            android:padding="12dp" />
+    </LinearLayout>
+</ScrollView>

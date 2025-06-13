@@ -54,18 +54,21 @@
                 android:id="@+id/button_plan_event"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
+                android:backgroundTint="#FF5722"
                 android:text="Планировать мероприятие" />
 
             <Button
                 android:id="@+id/button_book_headquarters"
                 android:layout_width="match_parent"
                 android:layout_height="49dp"
+                android:backgroundTint="#FF5722"
                 android:text="Бронировать штаб" />
 
             <Button
                 android:id="@+id/button_manage_team"
                 android:layout_width="match_parent"
                 android:layout_height="51dp"
+                android:backgroundTint="#FF5722"
                 android:text="Управление отрядом" />
 
             <TextView
@@ -83,12 +86,14 @@
                     android:id="@+id/button_bookings"
                     android:layout_width="210dp"
                     android:layout_height="wrap_content"
+                    android:backgroundTint="#FF5722"
                     android:text="Бронирования" />
 
                 <Button
                     android:id="@+id/button_events"
                     android:layout_width="201dp"
                     android:layout_height="wrap_content"
+                    android:backgroundTint="#FF5722"
                     android:text="Мероприятия" />
             </LinearLayout>
 

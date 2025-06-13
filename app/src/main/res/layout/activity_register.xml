@@ -9,19 +9,19 @@
         android:id="@+id/edit_text_login"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Login"
+        android:hint="Логин (уникальный)"
         android:inputType="text"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/edit_text_password" />
+        app:layout_constraintBottom_toTopOf="@+id/edit_text_last_name" />
 
     <EditText
-        android:id="@+id/edit_text_password"
+        android:id="@+id/edit_text_last_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Password"
-        android:inputType="textPassword"
+        android:hint="Фамилия"
+        android:inputType="textPersonName"
         app:layout_constraintTop_toBottomOf="@+id/edit_text_login"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -31,20 +31,99 @@
         android:id="@+id/edit_text_first_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="First Name"
+        android:hint="Имя"
         android:inputType="textPersonName"
+        app:layout_constraintTop_toBottomOf="@+id/edit_text_last_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/edit_text_patronymic" />
+
+    <EditText
+        android:id="@+id/edit_text_patronymic"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Отчество"
+        android:inputType="textPersonName"
+        app:layout_constraintTop_toBottomOf="@+id/edit_text_first_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/text_view_date_of_birth" />
+
+    <TextView
+        android:id="@+id/text_view_date_of_birth"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Дата рождения (дд.мм.гггг)"
+        android:padding="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintTop_toBottomOf="@+id/edit_text_patronymic"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/spinner_study_place" />
+
+    <Spinner
+        android:id="@+id/spinner_study_place"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/text_view_date_of_birth"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/edit_text_custom_study_place" />
+
+    <EditText
+        android:id="@+id/edit_text_custom_study_place"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Укажите место учёбы"
+        android:inputType="text"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/spinner_study_place"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/edit_text_phone" />
+
+    <EditText
+        android:id="@+id/edit_text_phone"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Контактный телефон"
+        android:inputType="phone"
+        app:layout_constraintTop_toBottomOf="@+id/edit_text_custom_study_place"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/edit_text_password" />
+
+    <EditText
+        android:id="@+id/edit_text_password"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Пароль"
+        android:inputType="textPassword"
+        app:layout_constraintTop_toBottomOf="@+id/edit_text_phone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/check_box_privacy_policy" />
+
+    <CheckBox
+        android:id="@+id/check_box_privacy_policy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Согласен с политикой обработки персональных данных"
         app:layout_constraintTop_toBottomOf="@+id/edit_text_password"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/edit_text_last_name" />
+        app:layout_constraintBottom_toTopOf="@+id/text_view_privacy_policy_link" />
 
-    <EditText
-        android:id="@+id/edit_text_last_name"
-        android:layout_width="0dp"
+    <TextView
+        android:id="@+id/text_view_privacy_policy_link"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Last Name"
-        android:inputType="textPersonName"
-        app:layout_constraintTop_toBottomOf="@+id/edit_text_first_name"
+        android:text="Читать политику"
+        android:padding="8dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintTop_toBottomOf="@+id/check_box_privacy_policy"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/button_register" />
@@ -53,8 +132,8 @@
         android:id="@+id/button_register"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Register"
-        app:layout_constraintTop_toBottomOf="@+id/edit_text_last_name"
+        android:text="Зарегистрироваться"
+        app:layout_constraintTop_toBottomOf="@+id/text_view_privacy_policy_link"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

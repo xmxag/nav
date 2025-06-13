@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/image_view_profile"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_default_profile"
+        android:contentDescription="Profile Photo"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/text_view_full_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:padding="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/image_view_profile"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/text_view_login"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Логин: "
+        app:layout_constraintTop_toBottomOf="@+id/text_view_full_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/text_view_squads"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Отряды: "
+        app:layout_constraintTop_toBottomOf="@+id/text_view_login"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/text_view_role"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Роль: "
+        app:layout_constraintTop_toBottomOf="@+id/text_view_squads"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/text_view_date_of_birth"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Дата рождения: "
+        app:layout_constraintTop_toBottomOf="@+id/text_view_role"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/text_view_study_place"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Место учёбы: "
+        app:layout_constraintTop_toBottomOf="@+id/text_view_date_of_birth"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/text_view_phone"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Телефон: "
+        app:layout_constraintTop_toBottomOf="@+id/text_view_study_place"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/text_view_email"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Email: "
+        app:layout_constraintTop_toBottomOf="@+id/text_view_phone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/text_view_social_link"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Соцсеть: "
+        app:layout_constraintTop_toBottomOf="@+id/text_view_email"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/text_view_passport"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Паспорт: "
+        app:layout_constraintTop_toBottomOf="@+id/text_view_social_link"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/button_edit_profile"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Редактировать профиль"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/text_view_passport"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
